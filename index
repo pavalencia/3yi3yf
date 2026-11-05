@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gap Sorter | Three Years In, Three Years Forward</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--green:#2b3b26;--maroon:#6a2625;--olive:#4b6a3a;--cream:#efe8d4;--soft:#c3d1ac;--rose:#e9aaa0;
+--line:rgba(239,232,212,.38);
+--serif:"Cormorant Garamond","Iowan Old Style",Georgia,serif;--sans:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:#171f14;color:var(--cream);font-family:var(--sans);display:flex;align-items:center;justify-content:center;padding:14px;min-height:100vh}
+.slide{position:relative;width:100%;max-width:820px;min-height:620px;background:var(--green);padding:44px 34px 52px;display:flex;flex-direction:column;overflow:hidden}
+.slide::before{content:"";position:absolute;inset:12px;border:1px solid var(--line);pointer-events:none}
+.top,.foot{position:absolute;left:26px;right:26px;display:flex;justify-content:space-between;font-size:.68rem;letter-spacing:.06em;color:var(--soft)}
+.top{top:20px}.foot{bottom:20px}
+h1{font:700 clamp(3rem,11vw,5.2rem)/.95 var(--serif);margin:10px 0 14px}
+h2{font:700 clamp(2.2rem,7vw,3.2rem)/1 var(--serif);margin:0 0 6px}
+.lead{color:var(--soft);font-size:1rem;max-width:44ch;margin:0 0 22px}
+button{font:inherit;color:inherit;cursor:pointer}
+.go{align-self:flex-start;background:var(--cream);color:var(--green);border:0;border-radius:40px;padding:15px 34px;font-weight:600;font-size:1.05rem;box-shadow:0 4px 0 #8c876f;transition:transform .1s,box-shadow .1s}
+.go:active{transform:translateY(3px);box-shadow:0 1px 0 #8c876f}
+.ghost{background:transparent;border:1px solid var(--line);border-radius:40px;padding:13px 24px;font-size:.9rem}
+:focus-visible{outline:3px solid var(--cream);outline-offset:3px}
+.demo{display:flex;gap:10px;margin:0 0 26px;flex-wrap:wrap}
+.demo span{background:rgba(239,232,212,.1);border:1px dashed var(--line);border-radius:30px;padding:8px 16px;font-size:.85rem}
+.hud{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.dots{display:flex;gap:6px}.dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--line)}
+.dots i.cur{border-color:var(--cream);transform:scale(1.2)}.dots i.ok{background:var(--soft);border-color:var(--soft)}.dots i.bad{background:var(--rose);border-color:var(--rose)}
+.streak{font:600 1.1rem var(--serif);color:var(--soft);min-width:5em;text-align:right}
+.arena{flex:1;min-height:230px;display:flex;align-items:center;justify-content:center;padding:14px 0}
+.card{width:min(100%,430px);background:var(--cream);color:var(--green);border-radius:6px;padding:26px 24px;font:600 clamp(1.25rem,3.6vw,1.6rem)/1.22 var(--serif);box-shadow:5px 6px 0 rgba(0,0,0,.35);cursor:grab;touch-action:none;user-select:none;text-align:center;transform:rotate(var(--r,0deg))}
+.card:active{cursor:grabbing}
+.card.in{animation:in .3s ease-out}
+.card.shake{animation:shake .45s}
+.hint{text-align:center;min-height:3.2em;margin:4px 0 12px;font:italic 1.1rem var(--serif);color:var(--soft)}
+.hint.bad{color:var(--rose)}
+.bins{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.bin{border:0;border-radius:16px 16px 6px 6px;padding:18px 8px 14px;font-weight:600;font-size:.92rem;line-height:1.15;min-height:84px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;box-shadow:0 5px 0 rgba(0,0,0,.35);transition:transform .12s}
+.bin kbd{font:400 .7rem var(--sans);opacity:.75}
+.bin:hover,.bin.hot{transform:translateY(-6px) scale(1.04)}
+.bin.pop{animation:pop .4s}.bin.glow{animation:glow .9s}
+.b0{background:var(--maroon);color:var(--cream)}.b1{background:var(--olive);color:var(--cream)}.b2{background:var(--soft);color:var(--green)}.b3{background:var(--rose);color:var(--maroon)}
+.big{font:700 clamp(4rem,14vw,6.5rem)/1 var(--serif);margin:0}
+.miss{list-style:none;padding:0;margin:0 0 20px;font-size:.88rem;max-width:56ch}
+.miss li{padding:8px 0;border-bottom:1px solid var(--line)}.miss span{display:block;color:var(--soft);font-size:.8rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 22px;max-width:560px}
+.fields label{display:block;font-size:.78rem;color:var(--soft);margin-bottom:5px}
+.fields input{width:100%;font:inherit;color:var(--cream);background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:8px;padding:12px}
+.fields input::placeholder{color:rgba(239,232,212,.45)}
+.who{font:600 1.15rem var(--serif);color:var(--cream);margin:0 0 10px}
+.who span{display:block;font:400 .85rem var(--sans);color:var(--soft)}
+.conf{position:absolute;top:-14px;width:10px;height:14px;pointer-events:none;animation:fall 1.8s ease-in forwards}
+@keyframes in{from{opacity:0;transform:scale(.85) rotate(var(--r))}to{opacity:1;transform:scale(1) rotate(var(--r))}}
+@keyframes shake{0%,100%{transform:translateX(0) rotate(var(--r))}20%{transform:translateX(-14px) rotate(var(--r))}40%{transform:translateX(12px) rotate(var(--r))}60%{transform:translateX(-8px) rotate(var(--r))}80%{transform:translateX(5px) rotate(var(--r))}}
+@keyframes pop{50%{transform:translateY(-8px) scale(1.1)}}
+@keyframes glow{0%,100%{filter:none}30%,70%{filter:brightness(1.25) drop-shadow(0 0 12px var(--cream))}}
+@keyframes fall{to{transform:translateY(720px) rotate(540deg);opacity:.9}}
+@media(max-width:620px){.fields{grid-template-columns:1fr}.slide{padding:44px 16px 52px}.bins{grid-template-columns:1fr 1fr}.bin{min-height:70px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="slide" id="slide"></main>
+<script>
+const CATS=["HERM gap","PRD standardization","Governance","Talent"];
+const ITEMS=[
+ {t:"We cannot say which of our capabilities match the HERM, or which are missing.",c:0,w:"A capability map is the heart of a HERM gap."},
+ {t:"Two offices run the same function, yet neither appears on any capability map.",c:0,w:"Unmapped capabilities are HERM gaps."},
+ {t:"Our capability map stops at student services and skips research support.",c:0,w:"Whole areas missing from the model are HERM gaps."},
+ {t:"Two CUs count \u201Cenrolled student\u201D differently, so totals never match.",c:1,w:"Same term, different definition: a standardization problem."},
+ {t:"The same employee ID is written three different ways across CU systems.",c:1,w:"Inconsistent formats call for a common standard."},
+ {t:"Course codes mean different things on each campus.",c:1,w:"Shared records need shared definitions."},
+ {t:"Nobody owns the data retention policy, so nothing is approved or deleted.",c:2,w:"No owner, no decision: a governance weak point."},
+ {t:"Teams buy new software without any review or approval step.",c:2,w:"Missing oversight is a governance weak point."},
+ {t:"Data-sharing requests sit for months because no one can say yes.",c:2,w:"Unclear decision rights are a governance issue."},
+ {t:"Only one person can maintain our cloud setup, and they are leaving.",c:3,w:"Single-person dependency is a talent risk."},
+ {t:"Staff received a new analytics tool but no training on using it.",c:3,w:"The tool is there, the skills are not."},
+ {t:"We have no cybersecurity specialist and rely on a vendor for everything.",c:3,w:"A missing in-house skill is a talent gap."}];
+const N=10;
+const $=s=>document.querySelector(s);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const badge=r=>r>=9?"Gap master":r>=6?"Sharp eye":"Warming up";
+let keyFn=null;
+const player={name:"",office:""};
+const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function frame(inner,label){
+  if(keyFn){document.removeEventListener("keydown",keyFn);keyFn=null}
+  $("#slide").innerHTML=`<div class="top"><span>Three Years In, Three Years Forward</span><span>Gap Sorter</span></div>${inner}<div class="foot"><span>${label}</span></div>`}
+
+function start(){
+  frame(`<h1>Gap<br>Sorter</h1><p class="lead">Ten cards, four bins. Drag each card to the kind of gap it describes. It takes about a minute.</p>
+  <div class="demo"><span>HERM gap</span><span>PRD standardization</span><span>Governance</span><span>Talent</span></div>
+  <div class="fields"><div><label for="nm">Your name</label><input type="text" id="nm" autocomplete="name" value="${esc(player.name)}"></div>
+  <div><label for="of">Your office</label><input type="text" id="of" value="${esc(player.office)}" placeholder="e.g. Office of the Registrar"></div></div>
+  <button class="go" id="go">Play</button>`,"Welcome");
+  const go=$("#go"),chk=()=>{player.name=$("#nm").value.trim();player.office=$("#of").value.trim();go.disabled=!(player.name&&player.office);go.style.opacity=go.disabled?.4:1};
+  ["#nm","#of"].forEach(q=>{$(q).oninput=chk;$(q).onkeydown=e=>{if(e.key==="Enter"&&!go.disabled)play()}});
+  chk();go.onclick=()=>{if(!go.disabled)play()}}
+
+function play(){
+  const deck=shuffle(ITEMS.slice()).slice(0,N);
+  let i=0,right=0,streak=0,best=0,lock=false;const res=[],missed=[];
+  frame(`<div class="hud"><div class="dots" id="dots"></div><span class="streak" id="st"></span></div>
+  <div class="arena"><div class="card" id="card" role="group" aria-live="polite"></div></div>
+  <p class="hint" id="hint">Drag the card into a bin, or tap a bin. Keys 1 to 4 work too.</p>
+  <div class="bins">${CATS.map((c,k)=>`<button class="bin b${k}" data-c="${k}"><kbd>${k+1}</kbd>${c}</button>`).join("")}</div>`,"Sorting");
+  const card=$("#card"),hint=$("#hint"),bins=[...document.querySelectorAll(".bin")];
+  let rot=0;
+  const dots=()=>{$("#dots").innerHTML=Array.from({length:N},(_,k)=>`<i class="${res[k]||(k===i?"cur":"")}"></i>`).join("");
+    $("#st").textContent=streak>1?"Streak "+streak:""};
+  const show=()=>{rot=(Math.random()*5-2.5);card.style.setProperty("--r",rot+"deg");card.style.transition="none";card.style.transform="";card.style.opacity=1;
+    card.textContent=deck[i].t;card.classList.remove("in","shake");void card.offsetWidth;card.classList.add("in");dots()};
+  const answer=k=>{
+    if(lock)return;lock=true;const it=deck[i],ok=k===it.c;
+    bins.forEach(b=>b.classList.remove("hot"));
+    if(ok){right++;streak++;best=Math.max(best,streak);res[i]="ok";hint.className="hint";hint.textContent=["Nice.","Spot on.","Yes.","Got it."][i%4];
+      const r=card.getBoundingClientRect(),b=bins[k].getBoundingClientRect();
+      card.style.transition="transform .4s ease-in,opacity .4s";
+      card.style.transform=`translate(${b.left+b.width/2-(r.left+r.width/2)}px,${b.top+b.height/2-(r.top+r.height/2)}px) scale(.2)`;card.style.opacity=0;
+      bins[k].classList.remove("pop");void bins[k].offsetWidth;bins[k].classList.add("pop")}
+    else{streak=0;res[i]="bad";missed.push(it);hint.className="hint bad";hint.textContent="Best fit: "+CATS[it.c]+". "+it.w;
+      card.style.transition="transform .25s";card.style.transform="";card.classList.add("shake");
+      bins[it.c].classList.remove("glow");void bins[it.c].offsetWidth;bins[it.c].classList.add("glow")}
+    dots();
+    setTimeout(()=>{i++;lock=false;if(i>=N)finish();else{hint.className="hint";hint.textContent="";show()}},ok?450:1700)};
+  bins.forEach(b=>b.onclick=()=>answer(+b.dataset.c));
+  keyFn=e=>{const k=+e.key;if(k>=1&&k<=4)answer(k-1)};document.addEventListener("keydown",keyFn);
+  /* drag */
+  let drag=null;
+  const under=e=>bins.findIndex(b=>{const r=b.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom});
+  card.onpointerdown=e=>{if(lock)return;drag={x:e.clientX,y:e.clientY};card.setPointerCapture(e.pointerId);card.classList.remove("in");card.style.transition="none"};
+  card.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+    card.style.transform=`translate(${dx}px,${dy}px) rotate(${rot+dx/25}deg)`;const u=under(e);bins.forEach((b,k)=>b.classList.toggle("hot",k===u))};
+  card.onpointerup=card.onpointercancel=e=>{if(!drag)return;drag=null;const u=under(e);bins.forEach(b=>b.classList.remove("hot"));
+    if(u>=0)answer(u);else{card.style.transition="transform .25s";card.style.transform=""}};
+  function finish(){end(right,best,res,missed)}
+  show()}
+
+function end(right,best,res,missed){
+  const text=`${player.name}, ${player.office}. Gap Sorter: ${right}/${N} (${badge(right)}), best streak ${best}. Three Years In, Three Years Forward.`;
+  frame(`<h2>${badge(right)}</h2><p class="who">${esc(player.name)}<span>${esc(player.office)}</span></p><p class="big">${right}<span style="font-size:.4em;color:var(--soft)"> / ${N}</span></p>
+  <div class="dots" style="margin:12px 0 18px">${res.map(r=>`<i class="${r}"></i>`).join("")}</div>
+  <p class="lead">Best streak: ${best}. ${missed.length?"Here is what to look at again:":"Every card landed in the right bin."}</p>
+  ${missed.length?`<ul class="miss">${missed.slice(0,3).map(m=>`<li>${m.t}<span>Best fit: ${CATS[m.c]}. ${m.w}</span></li>`).join("")}</ul>`:""}
+  <div class="row" style="margin-top:auto"><button class="go" id="again">Play again</button><button class="ghost" id="jp">Download as JPEG</button><button class="ghost" id="cp">Copy my result</button><span class="hint" id="msg" style="margin:0;min-height:0"></span></div>`,"Results");
+  $("#again").onclick=play;
+  $("#jp").onclick=()=>jpeg(right,best,res,missed);
+  $("#cp").onclick=()=>{(navigator.clipboard?navigator.clipboard.writeText(text):Promise.reject()).then(()=>$("#msg").textContent="Copied.",()=>$("#msg").textContent="Copy not available here.")};
+  if(right>=6){const cols=["#efe8d4","#c3d1ac","#e9aaa0","#6a2625","#4b6a3a"];
+    for(let k=0;k<36;k++){const d=document.createElement("i");d.className="conf";d.style.left=Math.random()*100+"%";d.style.background=cols[k%5];d.style.animationDelay=Math.random()*.6+"s";$("#slide").appendChild(d)}}}
+
+function wrapText(x,t,px,y,w,lh){let l="";for(const word of t.split(/\s+/)){const n=l+word+" ";if(x.measureText(n).width>w&&l){x.fillText(l,px,y);y+=lh;l=word+" "}else l=n}x.fillText(l,px,y);return y+lh}
+function jpeg(right,best,res,missed){
+  const c=document.createElement("canvas");c.width=1200;c.height=675;const x=c.getContext("2d");
+  x.fillStyle="#2b3b26";x.fillRect(0,0,1200,675);
+  x.strokeStyle="rgba(239,232,212,.4)";x.lineWidth=2;x.strokeRect(24,24,1152,627);
+  x.fillStyle="#c3d1ac";x.font="20px sans-serif";x.fillText("THREE YEARS IN, THREE YEARS FORWARD",60,80);
+  x.textAlign="right";x.fillText("Gap Sorter",1140,80);x.textAlign="left";
+  x.fillStyle="#efe8d4";x.font='600 38px "Cormorant Garamond",Georgia,serif';x.fillText(player.name,60,135);
+  x.fillStyle="#c3d1ac";x.font="22px sans-serif";x.fillText(player.office,60,168);
+  x.fillStyle="#efe8d4";x.font='700 70px "Cormorant Garamond",Georgia,serif';x.fillText(badge(right),60,250);
+  x.font='700 170px "Cormorant Garamond",Georgia,serif';x.fillText(String(right),60,410);
+  const w=x.measureText(String(right)).width;
+  x.fillStyle="#c3d1ac";x.font='700 54px "Cormorant Garamond",Georgia,serif';x.fillText("/ "+N,70+w,410);
+  res.forEach((r,k)=>{x.beginPath();x.arc(72+k*38,463,13,0,6.283);x.fillStyle=r==="ok"?"#c3d1ac":"#e9aaa0";x.fill()});
+  x.fillStyle="#efe8d4";x.font="26px sans-serif";x.fillText("Best streak: "+best,60,530);
+  x.fillStyle="#c3d1ac";x.font="20px sans-serif";x.fillText(missed.length?"Worth another look":"Perfect sort",640,170);
+  let y=215;
+  if(missed.length){missed.slice(0,3).forEach(m=>{x.fillStyle="#efe8d4";x.font='600 26px "Cormorant Garamond",Georgia,serif';y=wrapText(x,m.t,640,y,500,32);
+    x.fillStyle="#c3d1ac";x.font="18px sans-serif";x.fillText("Best fit: "+CATS[m.c],640,y-4);y+=34})}
+  else{x.fillStyle="#efe8d4";x.font='600 30px "Cormorant Garamond",Georgia,serif';wrapText(x,"Every card landed in the right bin.",640,y,500,36)}
+  const a=document.createElement("a");a.href=c.toDataURL("image/jpeg",0.92);a.download="gap-sorter-"+(player.name||"result").replace(/[^a-z0-9]+/gi,"-").toLowerCase()+".jpg";a.click()}
+start();
+</script>
+</body>
+</html>
